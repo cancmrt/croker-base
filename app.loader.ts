@@ -2,6 +2,7 @@ import { JobsModels } from "croker-job-base/JobsModels";
 import { JobsRunner } from "croker-job-base/JobsRunner";
 import { JobsInstaller } from 'croker-job-base/JobsInstaller';
 import config from 'config';
+
 global.InitializedCrokerJobs = [];
 
 export class Loader {
