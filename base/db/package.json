@@ -1,0 +1,19 @@
+{
+  "name": "croker-base-db",
+  "version": "1.0.0",
+  "description": "croker db support package",
+  "main": "DBContext.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "db",
+    "croker"
+  ],
+  "author": "cancmrt",
+  "license": "ISC",
+  "dependencies": {
+    "sequelize": "^6.26.0",
+    "sqlite3": "^5.1.2"
+  }
+}
