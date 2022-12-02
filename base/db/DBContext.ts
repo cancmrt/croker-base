@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
 
-export abstract class DBContext {
+export class DBContext {
     private dbConfig:any;
     public context:Sequelize
     constructor(){

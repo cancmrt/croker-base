@@ -11,9 +11,15 @@
   "license": "ISC",
   "dependencies": {
     "@types/config": "^3.3.0",
+    "@types/cron": "^2.0.0",
+    "@types/node": "^18.11.10",
+    "axios": "^1.2.0",
+    "cheerio": "^1.0.0-rc.12",
     "config": "^3.3.8",
-    "croker-base-db": "file:base/db",
-    "croker-job-base": "file:base/job",
+    "cron": "^2.1.0",
+    "moment": "^2.29.4",
+    "sequelize": "^6.26.0",
+    "sqlite3": "^5.1.2",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.3"
   }
