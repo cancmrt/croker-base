@@ -2,8 +2,8 @@
 import { CronJob } from 'cron';
 import * as fs from 'fs';
 import * as path from 'path'
-import 
-
+import {Jobs} from './models/Jobs';
+import {JobLogs} from './models/JobLogs';
 
 export abstract class CrokerJobs {
 
@@ -16,14 +16,9 @@ export abstract class CrokerJobs {
     private CrokerCronJob:CronJob | undefined;
 
     constructor(){
-        this.Models = new JobsModels();
     }
 
     private async Init() {
-        await this.Models.Sync();
-        this.Models.Jobs.findAll({
-
-        })
         this.Job = await this.Client?.jobs.findFirstOrThrow({
             where:{
                 AND:{

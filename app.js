@@ -1,4 +1,4 @@
-import {Loader} from './app.loader'
+import {Loader} from './app.loader' 
 
 let app = new Loader();
 app.Load();
