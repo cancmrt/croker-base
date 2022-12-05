@@ -8,7 +8,8 @@ export default {
     JobLogs,
     InitJobPlugin,
     JobsBaseInstaller,
-    LoadAllJobs
+    LoadAllJobs,
+    CrokerJobs
 }
 
 const Jobs = Context.define('Jobs',{
@@ -192,49 +193,45 @@ class CrokerJobs {
         
     }
 
-    public async Start(){
+    async Start(){
 
         let findedJob = await this.GetJob();
         if(findedJob !== undefined){
-            await JobsLogger.Info(this.Job.Name,"Job " + this.Job?.Name + " Started...")
+            await JobInfo("Job " + findedJob.Name + " Started...");
             if(this.CrokerCronJob === undefined){
-                this.CrokerCronJob = new CronJob(this.Job.ExecuteCronTime,
+                this.CrokerCronJob = new CronJob(findedJob.ExecuteCronTime,
                 async () => {
 
-                    await this.Client?.$connect();
-                    await this.Client?.jobs.update({
-                        where: {
-                          Id: this.Job?.Id
-                        },
-                        data: {
-                          IsRunningNow:true
-                        },
+                    let updatedJobs = await Jobs.update({IsRunningNow:true},{
+                        where:{
+                            Id: findedJob.Id
+                        }
                     });
-                    await this.Client?.$disconnect();
-                    await JobsLogger.Info(this.Job?.Name || "","Job " + this.Job?.Name + " Run Start...")
+                    if(updatedJobs == undefined){
+                        throw new Error("Job parametreleri update edilemiyor");
+                    }
+
+                    await JobInfo("Job " + findedJob.Name + " Run Start...");
                     
                     try{
                         await this.Run(this);
-                        await JobsLogger.Info(this.Job?.Name || "","Job " + this.Job?.Name + " Run End...")
+                        await JobInfo("Job " + this.Job?.Name + " Run End...");
                         
                     }
                     catch(ex){
-                        await JobsLogger.Error(this.Job?.Name || "",JSON.stringify(ex))
+                        await this.JobError(JSON.stringify(ex))
                     }
-                    
-                    await this.Client?.$connect();
-                    await this.Client?.jobs.update({
-                        where: {
-                          Id: this.Job?.Id
-                        },
-                        data: {
-                          IsRunningNow:false
-                        },
+                    updatedJobs = await Jobs.update({IsRunningNow:false},{
+                        where:{
+                            Id: findedJob.Id
+                        }
                     });
-                    await this.Client?.$disconnect();
+                    if(updatedJobs == undefined){
+                        throw new Error("Job parametreleri çalıştıktan sonra update edilemiyor");
+                    }
                 },async () => {
                     await this.Completed(this);
-                    await JobsLogger.Info(this.Job?.Name || "","Job " + this.Job?.Name + " End Greacfully")
+                    await this.JobInfo("Job " + findedJob.Name + " End Greacfully")
                 });
             }
             this.CrokerCronJob.start();
@@ -245,25 +242,21 @@ class CrokerJobs {
         
     }
 
-    public async Stop(){
-        if(this.CrokerCronJob !== undefined){
-            if(this.Job !== undefined){
-                await this.Client?.$connect();
-                await this.Client?.jobs.update({
-                    where: {
-                      Id: this.Job?.Id
-                    },
-                    data: {
-                      IsRunningNow:false
-                    },
+    async Stop(){
+        if(this.CrokerCronJob != undefined){
+            let findedJob = await this.GetJob();
+            if(findedJob !== undefined){
+                updatedJobs = await Jobs.update({IsRunningNow:false},{
+                    where:{
+                        Id: findedJob.Id
+                    }
                 });
-                await this.Client?.$disconnect();
-                await JobsLogger.Info(this.Job?.Name || "","Job " + this.Job?.Name + " Stopped...")
+                await JobInfo("Job " + this.Job?.Name + " Stopped...");
             }
-            this.CrokerCronJob?.stop();
+            this.CrokerCronJob.stop();
         }
         else{
-            throw Error("Bulunamayan job durdurulamaz");
+            throw new Error("Bulunamayan job durdurulamaz");
         }
     }
 

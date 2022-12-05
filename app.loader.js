@@ -45,7 +45,7 @@ export class Loader {
     }
     async Start(){
         
-        await InstallAllJobs();
+        await JobsBaseInstaller();
         await LoadAllJobs();
 
     }
