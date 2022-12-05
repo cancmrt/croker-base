@@ -1,8 +1,9 @@
 import { Sequelize } from 'sequelize';
-import config from 'config';
+import Config from './config/config.js';
 
 let mode = process.env.NODE_ENV;
-let dbConfig = config.get("db."+mode);
-let Context = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password,dbConfig.configuration);
+let dbConfig = Config.db[mode];
 
-export default Context;
+export const Context = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password,dbConfig.configuration);
+
+

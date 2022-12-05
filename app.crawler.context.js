@@ -1,27 +1,19 @@
 import * as cheerio from 'cheerio'
 import axios from 'axios'
 
-export default {
-    HttpMethodType,
-    CrawlerLoader,
-    CrawlerResult,
-    CrokerCrawler
-}
 
-
-
-const HttpMethodType = {
+export const HttpMethodType = {
     GET:"GET",
     POST:"POST"
 }
 
-class CrawlerLoader {
+export class CrawlerLoader {
     URL = "";
     HttpMethod = HttpMethodType.GET
 
 };
 
-class CrawlerResult {
+export class CrawlerResult {
     URL = "";
     HttpMethod = HttpMethodType.GET;
     PageHTML = "";
@@ -30,7 +22,7 @@ class CrawlerResult {
     Error = undefined;
 };
 
-class CrokerCrawler{
+export class CrokerCrawler{
 
 
     RemoveTagAndWhiteSpaces(html){

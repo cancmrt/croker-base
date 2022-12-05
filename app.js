@@ -1,5 +1,4 @@
-import {Loader} from './app.loader' 
+import {Start} from './app.core.js';
 
-let app = new Loader();
-app.Load();
-app.Start()
+await Start();
+

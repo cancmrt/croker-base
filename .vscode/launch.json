@@ -5,8 +5,8 @@
             "name": "Launch via NPM",
             "request": "launch",
             "runtimeArgs": [
-                "run-script",
-                "debug"
+                "run",
+                "start"
             ],
             "runtimeExecutable": "npm",
             "skipFiles": [

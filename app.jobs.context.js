@@ -1,18 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path'
 import { DataTypes } from 'sequelize';
-import Context from './app.dbcontext';
+import {Context} from './app.dbcontext.js';
 
-export default {
-    Jobs,
-    JobLogs,
-    InitJobPlugin,
-    JobsBaseInstaller,
-    LoadAllJobs,
-    CrokerJobs
-}
 
-const Jobs = Context.define('Jobs',{
+export const Jobs = Context.define('Jobs',{
             Id: {
                 type: DataTypes.INTEGER,
                 autoIncrement: true,
@@ -54,7 +46,7 @@ const Jobs = Context.define('Jobs',{
                 defaultValue: false
             }
 });
-const JobLogs = context.define('JobLogs',{
+export const JobLogs = Context.define('JobLogs',{
             Id: {
                 type: DataTypes.INTEGER,
                 autoIncrement: true,
@@ -85,23 +77,27 @@ const JobLogs = context.define('JobLogs',{
             }
 });
 
-async function InitJobPlugin(){
-    await context.sync();
+export async function InitJobPlugin(){
+    await Context.sync();
+    let reqPath = path.join(global.__dirname, 'jobs');
+    if(!fs.existsSync(reqPath)){
+        fs.mkdirSync(reqPath,{ recursive: true });
+    }
 }
 
-async function JobsBaseInstaller(){
-    let reqPath = path.join(__dirname, 'jobs');
+export async function JobsBaseInstaller(){
+    let reqPath = path.join(global.__dirname, 'jobs');
     let getDirectories = fs.readdirSync(reqPath)
     for await (const dir of getDirectories) {
         if(path.extname(dir) == ""){
             let basePathName = path.basename(dir);
-            let jobClass = await import("jobs/"+basePathName+"/"+basePathName);
+            let jobClass = await import("jobs/"+basePathName+"/"+basePathName+".js");
             let createdClass = new jobClass[basePathName]();
             await createdClass.SystemInstaller();
         }
     };
 }
-async function LoadAllJobs(){
+export async function LoadAllJobs(){
     let allJobs = await Jobs.findAll({
         where:{
             IsActive:false,
@@ -110,7 +106,7 @@ async function LoadAllJobs(){
     });
 
     for await (const job of allJobs) {
-        let jobClass = await import("jobs/"+job.ExecuterClass+"/"+job.ExecuterClass);
+        let jobClass = await import("jobs/"+job.ExecuterClass+"/"+job.ExecuterClass+".js");
         let createdClass = new jobClass[job.ExecuterClass]();
         await createdClass.Start();
         global.InitializedCrokerJobs.push(createdClass);
@@ -118,7 +114,7 @@ async function LoadAllJobs(){
 
 }
 
-class CrokerJobs {
+export class CrokerJobs {
 
      
     constructor(Name,ExecuterClass,ExecuteCronTime,Version){
