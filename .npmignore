@@ -1,0 +1,9 @@
+dist
+jobs
+dev-db
+config
+package-lock.json
+app.json
+.eslintrc.cjs
+.vscode
+.tgz

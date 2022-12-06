@@ -1,8 +1,6 @@
-import {InitJobPlugin,JobsBaseInstaller} from './app.jobs.context.js';
+import { InitJobPlugin, JobsBaseInstaller } from './app.jobs.context.js'
 
-export async function Load(){
-
-    await InitJobPlugin();
-    await JobsBaseInstaller();
-
+export async function Load () {
+  await InitJobPlugin()
+  await JobsBaseInstaller()
 }

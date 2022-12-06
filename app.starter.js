@@ -1,7 +1,5 @@
-import { LoadAllJobs } from "./app.jobs.context.js";
+import { LoadAllJobs } from './app.jobs.context.js'
 
-export async function Start(){
-    
-    await LoadAllJobs();
-
+export async function Start () {
+  await LoadAllJobs()
 }
