@@ -10,7 +10,7 @@ export async function Start () {
     fs.mkdirSync(reqPath, { recursive: true })
   }
 
-  const configFile = path.join(global.__dirname, 'config', 'config.js')
+  let configFile = path.join(global.__dirname, 'config', 'config.js')
   if (!fs.existsSync(configFile)) {
     fs.writeFileSync(configFile, `export default {
             mode:"development",
@@ -27,8 +27,8 @@ export async function Start () {
             }
         }`)
   }
-
-  const config = await import('./config/config.js')
+  configFile = path.join('file:///', configFile)
+  const config = await import(configFile)
 
   process.env.NODE_ENV = config.default.mode
 

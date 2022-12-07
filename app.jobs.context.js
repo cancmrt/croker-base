@@ -91,7 +91,7 @@ export async function JobsBaseInstaller () {
   for await (const dir of getDirectories) {
     if (path.extname(dir) === '') {
       const basePathName = path.basename(dir)
-      const jobClass = await import('./jobs/' + basePathName + '/' + basePathName + '.js')
+      const jobClass = await import(path.join('file:///', global.__dirname, 'jobs', basePathName, basePathName + '.js'))
       const createdClass = new jobClass[basePathName]()
       await createdClass.SystemInstaller()
     }
@@ -106,7 +106,7 @@ export async function LoadAllJobs () {
   })
 
   for await (const job of allJobs) {
-    const jobClass = await import('./jobs/' + job.ExecuterClass + '/' + job.ExecuterClass + '.js')
+    const jobClass = await import(path.join('file:///', global.__dirname, 'jobs', job.ExecuterClass, job.ExecuterClass + '.js'))
     const createdClass = new jobClass[job.ExecuterClass]()
     await createdClass.Start()
     global.JobContainer.push(createdClass)

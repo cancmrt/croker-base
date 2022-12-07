@@ -1,9 +1,9 @@
-dist
 jobs
+plugins
 dev-db
 config
 package-lock.json
-app.json
+app.js
 .eslintrc.cjs
 .vscode
-.tgz
+*.tgz

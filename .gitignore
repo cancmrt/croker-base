@@ -1,8 +1,7 @@
 node_modules
 # Keep environment variables out of version control
-dist
 jobs
+plugins
 dev-db
-config
 package-lock.json
 *.tgz
