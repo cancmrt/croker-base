@@ -17,7 +17,8 @@
     "cron": "^2.1.0",
     "moment": "^2.29.4",
     "sequelize": "^6.26.0",
-    "sqlite3": "^5.1.2"
+    "sqlite3": "^5.1.2",
+    "tar": "^6.1.13"
   },
   "devDependencies": {
     "eslint": "^8.29.0",

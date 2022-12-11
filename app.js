@@ -1,4 +1,3 @@
-import {Start} from './app.core.js';
+import { Start } from './app.core.js'
 
-await Start();
-
+await Start()

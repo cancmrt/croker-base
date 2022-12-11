@@ -1,11 +1,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import * as cp from 'child_process'
-import * as os from 'os'
 
 export async function Start () {
   global.JobContainer = []
-  global.LoadJobContainer = []
   global.__dirname = process.cwd()
 
   const reqPath = path.join(global.__dirname, 'config')
@@ -56,53 +53,11 @@ export async function Start () {
     process.exit(-1)
   })
 
-  await NPMInstaller()
-
-  // const appLoader = await import('./app.loader.js')
-  // await appLoader.Load()
+  const appLoader = await import('./app.loader.js')
+  await appLoader.Load()
 
   // const appStarter = await import('./app.starter.js')
   // await appStarter.Start()
-}
-
-async function NPMInstaller () {
-  let restartRequired = false
-  const jobsPath = path.join(global.__dirname, 'jobs')
-  fs.readdirSync(jobsPath).forEach(async function (job) {
-    const jobPath = path.join(jobsPath, job)
-
-    // ensure path has package.json
-    if (!fs.existsSync(path.join(jobPath, 'package.json'))) {
-      throw new Error('Job package.json dosyasına sahip değil.')
-    }
-    const jobPackageJSONPath = path.join(jobPath, 'package.json')
-    const jobPackageJSON = JSON.parse(fs.readFileSync(jobPackageJSONPath))
-
-    // npm binary based on OS
-    const npmCmd = os.platform().startsWith('win') ? 'npm.cmd' : 'npm'
-    const fileName = jobPackageJSON.name + '-' + jobPackageJSON.version + '.tgz'
-    const npmJobPackagePathParam = 'jobs/' + job + '/' + fileName
-    // install folder
-    const resultOfInstallation = cp.spawnSync(npmCmd, ['install', npmJobPackagePathParam], {
-      env: process.env,
-      cwd: global.__dirname,
-      encoding: 'utf-8'
-    })
-
-    if (resultOfInstallation.status !== 0) {
-      throw new Error(resultOfInstallation.stderr)
-    } else {
-      global.LoadJobContainer.push(jobPackageJSON.name)
-    }
-
-    if (resultOfInstallation.stdout.includes('added')) {
-      restartRequired = true
-    }
-  })
-  if (restartRequired === true) {
-    const subprocess = cp.spawnSync(process.argv[1], process.argv.slice(2), { detached: true })
-    subprocess.unref()
-  }
 }
 
 async function exitHandler () {
