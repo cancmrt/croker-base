@@ -1,5 +1,7 @@
 node_modules
 # Keep environment variables out of version control
+plugins
+plugins-dev
 dev-db
 packages
 package-lock.json

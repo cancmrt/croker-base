@@ -54,10 +54,7 @@ export async function Start () {
   })
 
   const appLoader = await import('./app.loader.js')
-  await appLoader.Load()
-
-  // const appStarter = await import('./app.starter.js')
-  // await appStarter.Start()
+  await appLoader.Load(config.default)
 }
 
 async function exitHandler () {

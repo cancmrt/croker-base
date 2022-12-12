@@ -88,6 +88,13 @@ export async function InitPluginBaseSystem () {
     fs.mkdirSync(reqPath, { recursive: true })
   }
 }
+export async function InitPluginBaseSystemDEV () {
+  await Context.sync()
+  const reqPath = path.join(global.__dirname, 'plugins-dev')
+  if (!fs.existsSync(reqPath)) {
+    fs.mkdirSync(reqPath, { recursive: true })
+  }
+}
 
 export async function PluginBaseInstaller () {
   let restartRequired = false
@@ -184,6 +191,80 @@ export async function PluginBaseInstaller () {
   }
 }
 
+export async function PluginBaseInstallerDEV () {
+  const pluginsPath = path.join(global.__dirname, 'plugins-dev')
+  const pluginFolders = fs.readdirSync(pluginsPath).filter(file => path.extname(file) === '')
+  for await (const plugin of pluginFolders) {
+    const pluginPath = path.join(pluginsPath, plugin)
+
+    const pluginJSONPath = path.join(pluginPath, 'plugin.json')
+    const pluginPackageJSONPath = path.join(pluginPath, 'package.json')
+    const pluginJSON = JSON.parse(fs.readFileSync(pluginJSONPath))
+    const pluginPackageJSON = JSON.parse(fs.readFileSync(pluginPackageJSONPath))
+    let countOfDep = 0
+    let countOfDepSatisfy = 0
+    if (pluginJSON.Config.Depent) {
+      countOfDep = pluginJSON.Config.Depent.length
+    }
+
+    const baseAppPackageJSON = JSON.parse(fs.readFileSync(path.join(global.__dirname, 'package.json')))
+
+    for await (const baseDep of Object.keys(baseAppPackageJSON.dependencies)) {
+      if (pluginJSON.Config.Depent) {
+        pluginJSON.forEach(dep => {
+          if (dep === baseDep) {
+            countOfDepSatisfy = countOfDepSatisfy + 1
+          }
+        })
+      }
+    }
+    if (countOfDepSatisfy !== countOfDep) {
+      await PluginLogs.create({
+        Name: pluginJSON.Name,
+        Message: 'Plugin dependencies not installed on system. Plugin depent: ' + JSON.stringify(pluginJSON.Config.Depent),
+        ExecuteTime: new Date(),
+        IsError: true,
+        IsWarning: false
+      })
+    } else {
+      const findedPlugin = await Plugins.findOne({
+        where: {
+          Name: pluginJSON.Name
+        }
+      })
+
+      if (findedPlugin === null) {
+        await Plugins.create({
+          Type: pluginJSON.Type,
+          Name: pluginJSON.Name,
+          PackageName: pluginPackageJSON.name,
+          Filename: plugin,
+          Config: JSON.stringify(pluginJSON.Config)
+        })
+        await PluginLogs.create({
+          Name: pluginJSON.Name,
+          Message: 'Plugin successfully installed',
+          ExecuteTime: new Date(),
+          IsError: true,
+          IsWarning: false
+        })
+      } else {
+        await Plugins.update({
+          Type: pluginJSON.Type,
+          Name: pluginJSON.Name,
+          PackageName: pluginPackageJSON.name,
+          Filename: plugin,
+          Config: JSON.stringify(pluginJSON.Config)
+        }, {
+          where: {
+            Name: findedPlugin.Name
+          }
+        })
+      }
+    }
+  }
+}
+
 export async function LoadPluginJobs () {
   const allJobs = await Plugins.findAll({
     where: {
@@ -195,6 +276,24 @@ export async function LoadPluginJobs () {
   for await (const job of allJobs) {
     const jobClass = await import(job.PackageName)
     job.Config = JSON.parse(job.Config)
+    const createdClass = new jobClass[job.Config.SPointClass](job)
+    await createdClass.Install()
+    await createdClass.Start()
+    global.JobContainer.push(createdClass)
+  };
+}
+export async function LoadPluginJobsDEV () {
+  const allJobs = await Plugins.findAll({
+    where: {
+      Type: PluginTypes.Job,
+      IsActive: true
+    }
+  })
+
+  for await (const job of allJobs) {
+    job.Config = JSON.parse(job.Config)
+    const devPath = path.join('file:///', global.__dirname, 'plugins-dev', job.Filename, job.Config.SPoint)
+    const jobClass = await import(devPath)
     const createdClass = new jobClass[job.Config.SPointClass](job)
     await createdClass.Install()
     await createdClass.Start()
